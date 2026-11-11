@@ -1,0 +1,37 @@
+table DimDate
+	isHidden
+	lineageTag: fc2e116f-518c-4207-9c66-52861ac80bd0
+
+	column Date
+		dataType: dateTime
+		isHidden
+		formatString: Long Date
+		lineageTag: bb2f6eaf-f6b4-4579-937e-1df1866c8085
+		summarizeBy: none
+		sourceColumn: Date
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	partition DimDate = m
+		mode: import
+		queryGroup: Dimensions
+		source =
+				let
+				    Źródło = {
+				  Number.From(Date.StartOfYear(Table.Min(FactSales,"OrderDate")[OrderDate]))..
+				  Number.From(Date.EndOfYear(DateTime.Date(Table.Max(FactSales,"OrderDate")[OrderDate])))
+				},
+				  #"Przekonwertowane na tabelę" = Table.FromList(Źródło, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
+				  #"Zmieniono nazwy kolumn" = Table.RenameColumns(#"Przekonwertowane na tabelę", {{"Column1", "Date"}}),
+				  #"Zmieniono typ kolumny" = Table.TransformColumnTypes(#"Zmieniono nazwy kolumn", {{"Date", type date}})
+				in
+				    #"Zmieniono typ kolumny"
+
+	changedProperty = IsHidden
+
+	annotation PBI_ResultType = Table
+

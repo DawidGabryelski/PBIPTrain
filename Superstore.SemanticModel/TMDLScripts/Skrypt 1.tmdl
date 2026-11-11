@@ -1,0 +1,162 @@
+createOrReplace
+
+	table FactSales
+		lineageTag: d7365959-5590-400a-8d11-791e2bc26a2d
+
+		column OrderDate
+			dataType: dateTime
+			formatString: dd/mm/yyyy
+			lineageTag: dd5a69b3-fc50-441b-9f48-0bdf29c56283
+			summarizeBy: none
+			sourceColumn: OrderDate
+
+			annotation SummarizationSetBy = Automatic
+
+			annotation UnderlyingDateTimeDataType = Date
+
+		column ShipDate
+			dataType: dateTime
+			formatString: dd/mm/yyyy
+			lineageTag: a6593fcc-8103-4208-a791-288de5aa0029
+			summarizeBy: none
+			sourceColumn: ShipDate
+
+			annotation SummarizationSetBy = Automatic
+
+			annotation UnderlyingDateTimeDataType = Date
+
+		column Sales
+			dataType: decimal
+			formatString: #,0.##\ "zł";-#,0.##\ "zł";#,0.##\ "zł"
+			lineageTag: f3cffcd3-6a09-4417-9cce-0d8336ea9bf1
+			summarizeBy: sum
+			sourceColumn: Sales
+
+			annotation SummarizationSetBy = Automatic
+
+			annotation PBI_FormatHint = {"currencyCulture":"pl-PL"}
+
+		column Quantity
+			dataType: int64
+			formatString: 0
+			lineageTag: 86bca28f-8222-46b4-9e83-84be2ec003e8
+			summarizeBy: sum
+			sourceColumn: Quantity
+
+			annotation SummarizationSetBy = Automatic
+
+		column Discount
+			dataType: decimal
+			formatString: #,0.##\ "zł";-#,0.##\ "zł";#,0.##\ "zł"
+			lineageTag: fd41227a-b099-45ff-9d02-d062457f73ef
+			summarizeBy: sum
+			sourceColumn: Discount
+
+			annotation SummarizationSetBy = Automatic
+
+			annotation PBI_FormatHint = {"currencyCulture":"pl-PL"}
+
+		column Profit
+			dataType: decimal
+			formatString: #,0.##\ "zł";-#,0.##\ "zł";#,0.##\ "zł"
+			lineageTag: 13568240-b0fd-424e-8569-5410b535ceed
+			summarizeBy: sum
+			sourceColumn: Profit
+
+			annotation SummarizationSetBy = Automatic
+
+			annotation PBI_FormatHint = {"currencyCulture":"pl-PL"}
+
+		column CustomerID
+			dataType: int64
+			formatString: 0
+			lineageTag: 69cf5fb9-ca48-4518-ac6d-a7234242f9fd
+			summarizeBy: none
+			sourceColumn: CustomerID
+
+			annotation SummarizationSetBy = Automatic
+
+		column LocationID
+			dataType: int64
+			formatString: 0
+			lineageTag: 16692068-de30-472f-b189-564288a2cf85
+			summarizeBy: none
+			sourceColumn: LocationID
+
+			annotation SummarizationSetBy = Automatic
+
+		column ProductID
+			dataType: int64
+			formatString: 0
+			lineageTag: c9aba695-32ed-41e9-bf01-eab19e0054de
+			summarizeBy: none
+			sourceColumn: ProductID
+
+			annotation SummarizationSetBy = Automatic
+
+		column RegionID
+			dataType: int64
+			formatString: 0
+			lineageTag: bd43b36e-b3ec-430b-9144-89bb05473a0e
+			summarizeBy: none
+			sourceColumn: RegionID
+
+			annotation SummarizationSetBy = Automatic
+
+		column SegmentID
+			dataType: int64
+			formatString: 0
+			lineageTag: 4f76abb1-4e1a-429d-b804-dedefda3c092
+			summarizeBy: none
+			sourceColumn: SegmentID
+
+			annotation SummarizationSetBy = Automatic
+
+		column ShipModeID
+			dataType: int64
+			formatString: 0
+			lineageTag: 16b58c20-1d1d-4001-9ec9-98ca0fd6bb7d
+			summarizeBy: none
+			sourceColumn: ShipModeID
+
+			annotation SummarizationSetBy = Automatic
+
+		partition FactSales = m
+			mode: import
+			queryGroup: Facts
+			source =
+					let
+					  Źródło = #"Sample - Superstore",
+					  #"Podziel kolumnę według ogranicznika" = Table.SplitColumn(Źródło, "Order Date", Splitter.SplitTextByDelimiter("/"), {"Order Date.1", "Order Date.2", "Order Date.3"}),
+					  #"Zmieniono typ kolumny" = Table.TransformColumnTypes(#"Podziel kolumnę według ogranicznika", {{"Order Date.1", Int64.Type}, {"Order Date.2", Int64.Type}, {"Order Date.3", Int64.Type}}, "pl"),
+					  #"Zmieniono kolejność kolumn" = Table.ReorderColumns(#"Zmieniono typ kolumny", {"Row ID", "Order ID", "Order Date.2", "Order Date.1", "Order Date.3", "Ship Date", "Ship Mode", "Customer ID", "Customer Name", "Segment", "Country", "City", "State", "Postal Code", "Region", "Product ID", "Category", "Sub-Category", "Product Name", "Sales", "Quantity", "Discount", "Profit"}),
+					  #"Scalono kolumny" = Table.CombineColumns(Table.TransformColumnTypes(#"Zmieniono kolejność kolumn", {{"Order Date.2", type text}, {"Order Date.1", type text}, {"Order Date.3", type text}}), {"Order Date.2", "Order Date.1", "Order Date.3"}, Combiner.CombineTextByDelimiter(".", QuoteStyle.None), "OrderDate"),
+					  #"Zmieniono typ kolumny 1" = Table.TransformColumnTypes(#"Scalono kolumny", {{"OrderDate", type date}}),
+					  #"Podziel kolumnę według ogranicznika 1" = Table.SplitColumn(#"Zmieniono typ kolumny 1", "Ship Date", Splitter.SplitTextByDelimiter("/"), {"Ship Date.1", "Ship Date.2", "Ship Date.3"}),
+					  #"Zmieniono typ kolumny 2" = Table.TransformColumnTypes(#"Podziel kolumnę według ogranicznika 1", {{"Ship Date.1", Int64.Type}, {"Ship Date.2", Int64.Type}, {"Ship Date.3", Int64.Type}}, "pl"),
+					  #"Zmieniono kolejność kolumn 1" = Table.ReorderColumns(#"Zmieniono typ kolumny 2", {"Row ID", "Order ID", "OrderDate", "Ship Date.2", "Ship Date.1", "Ship Date.3", "Ship Mode", "Customer ID", "Customer Name", "Segment", "Country", "City", "State", "Postal Code", "Region", "Product ID", "Category", "Sub-Category", "Product Name", "Sales", "Quantity", "Discount", "Profit"}),
+					  #"Scalono kolumny 1" = Table.CombineColumns(Table.TransformColumnTypes(#"Zmieniono kolejność kolumn 1", {{"Ship Date.2", type text}, {"Ship Date.1", type text}, {"Ship Date.3", type text}}), {"Ship Date.2", "Ship Date.1", "Ship Date.3"}, Combiner.CombineTextByDelimiter(".", QuoteStyle.None), "ShipDate"),
+					  #"Zmieniono typ kolumny 3" = Table.TransformColumnTypes(#"Scalono kolumny 1", {{"ShipDate", type date}}),
+					  #"Scalone zapytania" = Table.NestedJoin(#"Zmieniono typ kolumny 3", {"Customer Name"}, DimCustomer, {"CustomerName"}, "DimCustomer", JoinKind.LeftOuter),
+					  #"Scalone zapytania 1" = Table.NestedJoin(#"Scalone zapytania", {"City"}, DimLocation, {"City"}, "DimLocation", JoinKind.LeftOuter),
+					  #"Scalone zapytania 2" = Table.NestedJoin(#"Scalone zapytania 1", {"Product Name"}, DimProduct, {"Product Name"}, "DimProduct", JoinKind.LeftOuter),
+					  #"Scalone zapytania 3" = Table.NestedJoin(#"Scalone zapytania 2", {"Region"}, DimRegion, {"Region"}, "DimRegion", JoinKind.LeftOuter),
+					  #"Scalone zapytania 4" = Table.NestedJoin(#"Scalone zapytania 3", {"Segment"}, DimSegment, {"Segment"}, "DimSegment", JoinKind.LeftOuter),
+					  #"Scalone zapytania 5" = Table.NestedJoin(#"Scalone zapytania 4", {"Ship Mode"}, DimShipMode, {"ShipMode"}, "DimShipMode", JoinKind.LeftOuter),
+					  #"Rozwinięta kolumna DimCustomer" = Table.ExpandTableColumn(#"Scalone zapytania 5", "DimCustomer", {"CustomerID"}, {"CustomerID"}),
+					  #"Rozwinięta kolumna DimLocation" = Table.ExpandTableColumn(#"Rozwinięta kolumna DimCustomer", "DimLocation", {"LocationID"}, {"LocationID"}),
+					  #"Rozwinięta kolumna DimProduct" = Table.ExpandTableColumn(#"Rozwinięta kolumna DimLocation", "DimProduct", {"ProductID"}, {"ProductID"}),
+					  #"Rozwinięta kolumna DimRegion" = Table.ExpandTableColumn(#"Rozwinięta kolumna DimProduct", "DimRegion", {"RegionID"}, {"RegionID"}),
+					  #"Rozwinięta kolumna DimSegment" = Table.ExpandTableColumn(#"Rozwinięta kolumna DimRegion", "DimSegment", {"SegmentID"}, {"SegmentID"}),
+					  #"Rozwinięta kolumna DimShipMode" = Table.ExpandTableColumn(#"Rozwinięta kolumna DimSegment", "DimShipMode", {"ShipModeID"}, {"ShipModeID"}),
+					  #"Wybierz kolumny" = Table.SelectColumns(#"Rozwinięta kolumna DimShipMode", {"OrderDate", "ShipDate", "Sales", "Quantity", "Discount", "Profit", "CustomerID", "LocationID", "ProductID", "RegionID", "SegmentID", "ShipModeID"}),
+					  #"Posortowano wiersze" = Table.Sort(#"Wybierz kolumny", {{"OrderDate", Order.Ascending}}),
+					  #"Zamieniono wartość" = Table.ReplaceValue(#"Posortowano wiersze", ".", ",", Replacer.ReplaceText, {"Sales"}),
+					  #"Zmieniono typ kolumny 4" = Table.TransformColumnTypes(#"Zamieniono wartość", {{"Sales", Currency.Type}}),
+					  #"Zamieniono wartość 1" = Table.ReplaceValue(#"Zmieniono typ kolumny 4", ".", ",", Replacer.ReplaceText, {"Discount", "Profit"}),
+					  #"Zmieniono typ kolumny 5" = Table.TransformColumnTypes(#"Zamieniono wartość 1", {{"Discount", Currency.Type}, {"Profit", Currency.Type}})
+					in
+					  #"Zmieniono typ kolumny 5"
+
+		annotation PBI_ResultType = Table
+

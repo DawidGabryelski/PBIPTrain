@@ -1,0 +1,37 @@
+table DimShipMode
+	lineageTag: 50b8b1c9-6145-4ed9-841f-c8378406c4b4
+
+	column ShipModeID
+		dataType: int64
+		formatString: 0
+		lineageTag: 7abf485b-4dc2-43b9-9895-79aa3fe7c770
+		summarizeBy: none
+		sourceColumn: ShipModeID
+
+		annotation SummarizationSetBy = Automatic
+
+	column ShipMode
+		dataType: string
+		lineageTag: 37804a5e-eea0-46d6-bce4-9d6cf255eeb5
+		summarizeBy: none
+		sourceColumn: ShipMode
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimShipMode = m
+		mode: import
+		queryGroup: Dimensions
+		source =
+				let
+				  Źródło = #"Sample - Superstore",
+				  #"Wybierz kolumny" = Table.SelectColumns(Źródło, {"Ship Mode"}),
+				  #"Usunięto duplikaty" = Table.Distinct(#"Wybierz kolumny", {"Ship Mode"}),
+				  #"Zmieniono nazwy kolumn" = Table.RenameColumns(#"Usunięto duplikaty", {{"Ship Mode", "ShipMode"}}),
+				  #"Dodano indeks" = Table.AddIndexColumn(#"Zmieniono nazwy kolumn", "Indeks", 1, 1, Int64.Type),
+				  #"Zmieniono nazwy kolumn 1" = Table.RenameColumns(#"Dodano indeks", {{"Indeks", "ShipModeID"}}),
+				  #"Zmieniono kolejność kolumn" = Table.ReorderColumns(#"Zmieniono nazwy kolumn 1", {"ShipModeID", "ShipMode"})
+				in
+				  #"Zmieniono kolejność kolumn"
+
+	annotation PBI_ResultType = Table
+

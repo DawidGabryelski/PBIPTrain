@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "Superstore"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "c4afae18-f0ba-44c5-9ea7-94fe9f7af317"
+  }
+}

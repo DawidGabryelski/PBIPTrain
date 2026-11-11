@@ -1,0 +1,187 @@
+table TimeInteligence
+	isHidden
+	lineageTag: 2aebb583-49aa-4426-a91d-9ff74fe0b2f6
+	dataCategory: Time
+
+	column Date
+		isHidden
+		isKey
+		formatString: dd/mm/yyyy
+		lineageTag: e529bf4c-5b89-4302-933e-98c887149363
+		dataCategory: PaddedDateTableDates
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Date]
+
+		annotation SQLBI_AttributeTypes = Date
+
+	column Year
+		isHidden
+		lineageTag: 389e4c1a-4b3e-4713-a786-4cf352e8ca2d
+		dataCategory: Years
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Year]
+
+	column 'Year Quarter Number'
+		isHidden
+		lineageTag: 5c3b0094-a746-4cab-ba29-192919573164
+		dataCategory: Quarters
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Year Quarter Number]
+
+	column 'Year Quarter'
+		isHidden
+		lineageTag: 6fec0f21-0376-4f15-8096-d5aa716cfe81
+		dataCategory: Quarters
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Year Quarter]
+		sortByColumn: 'Year Quarter Number'
+
+	column Quarter
+		isHidden
+		lineageTag: e9435fc3-d00a-4bc8-ae3d-d97fad2b9e1d
+		dataCategory: QuarterOfYear
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Quarter]
+
+	column 'Year Month'
+		isHidden
+		lineageTag: ead42a63-cdaa-4943-b184-2cb5dadefbb4
+		dataCategory: Months
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Year Month]
+		sortByColumn: 'Year Month Number'
+
+	column 'Year Month Number'
+		isHidden
+		lineageTag: 7ffe5363-3ab5-4c32-983b-4a248ccd984f
+		dataCategory: Months
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Year Month Number]
+
+	column Month
+		isHidden
+		lineageTag: c5f0d50b-ac0d-4bdf-a900-7bc93305bbe3
+		dataCategory: MonthOfYear
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Month]
+		sortByColumn: 'Month Number'
+
+	column 'Month Number'
+		isHidden
+		lineageTag: c729569c-3edf-4a1b-9919-eecedd24f725
+		dataCategory: MonthOfYear
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Month Number]
+
+	column 'Day of Week Number'
+		isHidden
+		lineageTag: 8d4d581d-8cef-4c0c-ab53-9d4447cbdff3
+		dataCategory: DayOfWeek
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Day of Week Number]
+
+		annotation SQLBI_AttributeTypes = DayOfWeek
+
+		annotation SQLBI_FilterSafe = True
+
+	column 'Day of Week'
+		isHidden
+		lineageTag: 4431bac1-0c16-40f9-8ae4-b603ab3912a0
+		dataCategory: DayOfWeek
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Day of Week]
+		sortByColumn: 'Day of Week Number'
+
+		annotation SQLBI_FilterSafe = True
+
+	column DateWithTransactions
+		isHidden
+		lineageTag: 4db8ca4b-932d-494f-84be-ce188570fc10
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [DateWithTransactions]
+
+		annotation SQLBI_AttributeTypes = DateDuration
+
+	hierarchy Calendar
+		isHidden
+		lineageTag: c17e8133-a601-427c-ad75-ec8aaff682c4
+
+		level Year
+			lineageTag: ef322258-7ba8-4da5-9cf4-5ac948e67cac
+			column: Year
+
+		level Month
+			lineageTag: 99872c7b-f072-4a45-b813-94fb27aecb90
+			column: 'Year Month'
+
+		level Date
+			lineageTag: 4894852c-3806-4dd0-9086-7e22871c61d2
+			column: Date
+
+	partition TimeInteligence = calculated
+		mode: import
+		source = ```
+				
+				--  
+				--     Configuration
+				--  
+				VAR __FirstDayOfWeek = 1
+				----------------------------------------
+				VAR __WeekDayCalculationType = IF ( __FirstDayOfWeek = 0, 7, __FirstDayOfWeek ) + 10
+				VAR __Calendar = 
+				    VAR __FirstYear = YEAR ( MINX ( { MIN ( 'FactSales'[OrderDate] ), MIN ( 'FactSales'[ShipDate] ), MIN ( 'DimDate'[Date] ) }, ''[Value] ) )
+				    VAR __LastYear =  YEAR ( MAXX ( { MAX ( 'FactSales'[OrderDate] ), MAX ( 'FactSales'[ShipDate] ), MAX ( 'DimDate'[Date] ) }, ''[Value] ) )
+				    RETURN CALENDAR (
+				        DATE ( __FirstYear, 1, 1 ),
+				        DATE ( __LastYear, 12, 31 )
+				    )
+				VAR __Step3 = 
+				    GENERATE (
+				        __Calendar,
+				        VAR __IsStandardLocale = IF ( FORMAT( DATE( 2000, 1, 1 ), "oooo", "en-GB" ) = "oooo", TRUE, FALSE )
+				        VAR __MonthFormatString = IF( __IsStandardLocale, "mmm", "ooo" )
+				        VAR __DayFormatString = IF( __IsStandardLocale, "ddd", "aaa" )
+				        VAR __LastTransactionDate = MAXX ( { MAX ( 'FactSales'[OrderDate] ), MAX ( 'FactSales'[ShipDate] ), MAX ( 'DimDate'[Date] ) }, ''[Value] )
+				        VAR __Date = [Date]
+				        VAR __YearNumber = YEAR ( __Date )
+				        VAR __QuarterNumber = QUARTER ( __Date )
+				        VAR __YearQuarterNumber = CONVERT ( __YearNumber * 4 + __QuarterNumber - 1, INTEGER )
+				        VAR __MonthNumber = MONTH ( __Date )
+				        VAR __WeekDayNumber = WEEKDAY ( __Date, __WeekDayCalculationType )
+				        VAR __WeekDay = FORMAT ( __Date, __DayFormatString, "en-GB" )
+				        RETURN ROW ( 
+				            "Year", __YearNumber,
+				            "Year Quarter Number", __YearQuarterNumber,
+				            "Year Quarter", FORMAT ( __QuarterNumber, "\Q0", "en-GB" ) & "-" & FORMAT ( __YearNumber, "0000", "en-GB" ),
+				            "Quarter", FORMAT( __QuarterNumber, "\Q0", "en-GB" ),
+				            "Year Month", FORMAT ( __Date, __MonthFormatString & " yyyy", "en-GB" ),
+				            "Year Month Number", __YearNumber * 12 + __MonthNumber - 1,
+				            "Month", FORMAT ( __Date, __MonthFormatString, "en-GB" ),
+				            "Month Number", __MonthNumber,
+				            "Day of Week Number", __WeekDayNumber,
+				            "Day of Week", __WeekDay,
+				            "DateWithTransactions", __Date <= __LastTransactionDate 
+				        )
+				    )
+				RETURN
+				    __Step3
+				```
+
+	annotation SQLBI_Template = Dates
+
+	annotation SQLBI_TemplateTable = DateAutoTemplate
+
+	annotation SQLBI_CalendarType = Calendar
+

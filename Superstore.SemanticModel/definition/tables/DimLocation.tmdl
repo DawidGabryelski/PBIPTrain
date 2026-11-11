@@ -1,0 +1,55 @@
+table DimLocation
+	lineageTag: 157e9967-fd0b-4d46-8ad9-842d4a91af8b
+
+	column LocationID
+		dataType: int64
+		formatString: 0
+		lineageTag: 8c2e3486-6b34-4102-90ec-6ba896795385
+		summarizeBy: none
+		sourceColumn: LocationID
+
+		annotation SummarizationSetBy = Automatic
+
+	column PostalCode
+		dataType: int64
+		formatString: 0
+		lineageTag: 18168464-66da-4e33-bac7-8138949e4136
+		summarizeBy: none
+		sourceColumn: PostalCode
+
+		annotation SummarizationSetBy = Automatic
+
+	column City
+		dataType: string
+		lineageTag: ad923bda-cc44-4cf0-ab82-928b0e24eb14
+		summarizeBy: none
+		sourceColumn: City
+
+		annotation SummarizationSetBy = Automatic
+
+	column State
+		dataType: string
+		lineageTag: 6695a132-f57d-4ebb-a5f5-89fc638e5924
+		summarizeBy: none
+		sourceColumn: State
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimLocation = m
+		mode: import
+		queryGroup: Dimensions
+		source =
+				let
+				  Źródło = #"Sample - Superstore",
+				  #"Wybierz kolumny" = Table.SelectColumns(Źródło, {"City", "State", "Postal Code"}),
+				  #"Zmieniono kolejność kolumn" = Table.ReorderColumns(#"Wybierz kolumny", {"Postal Code", "City", "State"}),
+				  #"Usunięto duplikaty" = Table.Distinct(#"Zmieniono kolejność kolumn", {"Postal Code", "City", "State"}),
+				  #"Posortowano wiersze" = Table.Sort(#"Usunięto duplikaty", {{"State", Order.Ascending}, {"City", Order.Ascending}}),
+				  #"Dodano indeks" = Table.AddIndexColumn(#"Posortowano wiersze", "Indeks", 1, 1, Int64.Type),
+				  #"Zmieniono nazwy kolumn" = Table.RenameColumns(#"Dodano indeks", {{"Indeks", "LocationID"}, {"Postal Code", "PostalCode"}}),
+				  #"Zmieniono kolejność kolumn 1" = Table.ReorderColumns(#"Zmieniono nazwy kolumn", {"LocationID", "PostalCode", "City", "State"})
+				in
+				  #"Zmieniono kolejność kolumn 1"
+
+	annotation PBI_ResultType = Table
+

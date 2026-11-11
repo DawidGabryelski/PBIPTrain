@@ -1,0 +1,33 @@
+relationship AutoDetected_a655af8d-4afb-4f30-b845-63610b8d10d1
+	fromColumn: FactSales.ShipModeID
+	toColumn: DimShipMode.ShipModeID
+
+relationship AutoDetected_98226db2-ae70-4bfe-a83e-bf452cc1c1eb
+	fromColumn: FactSales.CustomerID
+	toColumn: DimCustomer.CustomerID
+
+relationship AutoDetected_d5978d42-7a48-4c28-b6d6-ab5b626d057f
+	fromColumn: FactSales.SegmentID
+	toColumn: DimSegment.SegmentID
+
+relationship AutoDetected_7296833f-e712-4b7e-a3ce-f720bf62a5d2
+	fromColumn: FactSales.LocationID
+	toColumn: DimLocation.LocationID
+
+relationship AutoDetected_6c6a6ba1-fc7e-4dc5-aacf-d6f4a9cf42d3
+	fromColumn: FactSales.RegionID
+	toColumn: DimRegion.RegionID
+
+relationship AutoDetected_4f864c03-470e-492d-9a7e-3cc6d8692b9c
+	fromColumn: FactSales.ProductID
+	toColumn: DimProduct.ProductID
+
+relationship f2ae48a4-8815-bfdd-4bb2-fd6f1d76cba7
+	fromColumn: FactSales.OrderDate
+	toColumn: Date.Date
+
+relationship 143a5158-c799-7ba6-9a4c-bab48baf7479
+	isActive: false
+	fromColumn: FactSales.ShipDate
+	toColumn: Date.Date
+

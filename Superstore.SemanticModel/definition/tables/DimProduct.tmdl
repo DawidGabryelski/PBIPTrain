@@ -1,0 +1,54 @@
+table DimProduct
+	lineageTag: 03cd28fc-767e-4146-bc18-2ea23d9528ba
+
+	column ProductID
+		dataType: int64
+		formatString: 0
+		lineageTag: 16f894a4-cb4b-46d2-bf2d-d910b1f45176
+		summarizeBy: none
+		sourceColumn: ProductID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Category
+		dataType: string
+		lineageTag: b7c5dfa1-37c0-4ab1-ae71-cb4bf7858af0
+		summarizeBy: none
+		sourceColumn: Category
+
+		annotation SummarizationSetBy = Automatic
+
+	column Sub-Category
+		dataType: string
+		lineageTag: ce447570-83ba-4915-8194-bf05bd393ffb
+		summarizeBy: none
+		sourceColumn: Sub-Category
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Product Name'
+		dataType: string
+		lineageTag: 7556210e-fa6d-4885-905f-a3300f3cebc9
+		summarizeBy: none
+		sourceColumn: Product Name
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimProduct = m
+		mode: import
+		queryGroup: Dimensions
+		source =
+				let
+				  Źródło = #"Sample - Superstore",
+				  #"Wybierz kolumny" = Table.SelectColumns(Źródło, {"Product ID", "Category", "Sub-Category", "Product Name"}),
+				  #"Posortowano wiersze" = Table.Sort(#"Wybierz kolumny", {{"Category", Order.Ascending}, {"Sub-Category", Order.Ascending}, {"Product Name", Order.Ascending}}),
+				  #"Usunięto duplikaty" = Table.Distinct(#"Posortowano wiersze", {"Product ID", "Category", "Sub-Category", "Product Name"}),
+				  #"Dodano indeks" = Table.AddIndexColumn(#"Usunięto duplikaty", "Indeks", 1, 1, Int64.Type),
+				  #"Zmieniono nazwy kolumn" = Table.RenameColumns(#"Dodano indeks", {{"Indeks", "ProductID"}}),
+				  #"Zmieniono kolejność kolumn" = Table.ReorderColumns(#"Zmieniono nazwy kolumn", {"ProductID", "Product ID", "Category", "Sub-Category", "Product Name"}),
+				  #"Usunięto kolumny" = Table.RemoveColumns(#"Zmieniono kolejność kolumn", {"Product ID"})
+				in
+				  #"Usunięto kolumny"
+
+	annotation PBI_ResultType = Table
+

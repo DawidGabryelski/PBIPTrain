@@ -1,0 +1,156 @@
+table Date
+	lineageTag: 9426bc47-beff-4102-b6d8-ee6e2fc81ab7
+	dataCategory: Time
+
+	measure _ShowValueForDates =
+			
+			VAR __LastDateWithData =
+			    CALCULATE (
+			        MAXX ( { MAX ( 'FactSales'[OrderDate] ), MAX ( 'FactSales'[ShipDate] ), MAX ( 'DimDate'[Date] ) }, ''[Value] ),
+			        REMOVEFILTERS ()
+			    )
+			VAR __FirstDateVisible =
+			    MIN ( 'Date'[Date] )
+			VAR __Result =
+			    __FirstDateVisible <= __LastDateWithData
+			RETURN
+			    __Result
+		isHidden
+		displayFolder: Hidden Time Intelligence
+		lineageTag: dc8b9d38-4b84-4c93-8df3-0bb8b9e64ae6
+
+		annotation SQLBI_Template = TimeIntelligence
+
+		annotation SQLBI_TimeIntelligence = Standard
+
+		annotation SQLBI_CalendarType = Calendar
+
+	column Date
+		isKey
+		formatString: dd/mm/yyyy
+		lineageTag: c3daeaf5-701f-48f2-87b5-f51932913074
+		dataCategory: PaddedDateTableDates
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: TimeInteligence[Date]
+
+		annotation SQLBI_AttributeTypes = Date
+
+	column Year
+		lineageTag: 39eaae7b-7b38-42e2-abda-8876570ed3a6
+		dataCategory: Years
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: TimeInteligence[Year]
+
+	column 'Year Quarter Number'
+		isHidden
+		lineageTag: 8aef6ae7-68b7-4f2c-9964-cffa06da4dd4
+		dataCategory: Quarters
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: TimeInteligence[Year Quarter Number]
+
+	column 'Year Quarter'
+		lineageTag: c39af3a0-17d8-4b95-b232-a0e49a74b157
+		dataCategory: Quarters
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: TimeInteligence[Year Quarter]
+		sortByColumn: 'Year Quarter Number'
+
+	column Quarter
+		lineageTag: 34c63723-40a8-4893-a6a4-06072bf8aa0a
+		dataCategory: QuarterOfYear
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: TimeInteligence[Quarter]
+
+	column 'Year Month'
+		lineageTag: 99344243-f380-401f-ab71-a69655293861
+		dataCategory: Months
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: TimeInteligence[Year Month]
+		sortByColumn: 'Year Month Number'
+
+	column 'Year Month Number'
+		isHidden
+		lineageTag: 22b2a834-c331-4bee-ad10-62bbda077e8c
+		dataCategory: Months
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: TimeInteligence[Year Month Number]
+
+	column Month
+		lineageTag: c5b41fc8-7749-4521-8998-a345f1b883ab
+		dataCategory: MonthOfYear
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: TimeInteligence[Month]
+		sortByColumn: 'Month Number'
+
+	column 'Month Number'
+		isHidden
+		lineageTag: 95c18c9c-a284-4fcb-b6f5-995848cba135
+		dataCategory: MonthOfYear
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: TimeInteligence[Month Number]
+
+	column 'Day of Week Number'
+		isHidden
+		lineageTag: 3f7cb308-1854-41df-bc84-ba04ca181807
+		dataCategory: DayOfWeek
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: TimeInteligence[Day of Week Number]
+
+		annotation SQLBI_AttributeTypes = DayOfWeek
+
+		annotation SQLBI_FilterSafe = True
+
+	column 'Day of Week'
+		lineageTag: 8d168ec6-7737-49bd-84bf-24c9676d4766
+		dataCategory: DayOfWeek
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: TimeInteligence[Day of Week]
+		sortByColumn: 'Day of Week Number'
+
+		annotation SQLBI_FilterSafe = True
+
+	column DateWithTransactions
+		isHidden
+		lineageTag: 01d5027c-4ca1-448a-80a8-6ff69731ff79
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: TimeInteligence[DateWithTransactions]
+
+		annotation SQLBI_AttributeTypes = DateDuration
+
+	hierarchy Calendar
+		lineageTag: 77b5b0d7-eabb-4308-90fd-8e201b844987
+
+		level Year
+			lineageTag: d139ae13-4ba9-42f0-ac4c-f8ef9e51ea4c
+			column: Year
+
+		level Month
+			lineageTag: 76e4e09f-9a76-41a6-8770-55237eaafb45
+			column: 'Year Month'
+
+		level Date
+			lineageTag: f652245c-80b7-4fd2-8af8-f690829f7f9f
+			column: Date
+
+	partition Date = calculated
+		mode: import
+		source = TimeInteligence
+
+	annotation SQLBI_Template = Dates
+
+	annotation SQLBI_TemplateTable = Date
+
+	annotation SQLBI_CalendarType = Calendar
+

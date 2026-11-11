@@ -1,0 +1,36 @@
+table DimSegment
+	lineageTag: 50014b0f-9b3f-42e8-9960-09af23b10b79
+
+	column SegmentID
+		dataType: int64
+		formatString: 0
+		lineageTag: d5b9ae2a-40c3-48c1-bbc4-b540ba97780a
+		summarizeBy: none
+		sourceColumn: SegmentID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Segment
+		dataType: string
+		lineageTag: 629b300f-c61c-4181-9a58-c0ea29b319ce
+		summarizeBy: none
+		sourceColumn: Segment
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimSegment = m
+		mode: import
+		queryGroup: Dimensions
+		source =
+				let
+				  Źródło = #"Sample - Superstore",
+				  #"Wybierz kolumny" = Table.SelectColumns(Źródło, {"Segment"}),
+				  #"Usunięto duplikaty" = Table.Distinct(#"Wybierz kolumny", {"Segment"}),
+				  #"Dodano indeks" = Table.AddIndexColumn(#"Usunięto duplikaty", "Indeks", 1, 1, Int64.Type),
+				  #"Zmieniono nazwy kolumn" = Table.RenameColumns(#"Dodano indeks", {{"Indeks", "SegmentID"}}),
+				  #"Zmieniono kolejność kolumn" = Table.ReorderColumns(#"Zmieniono nazwy kolumn", {"SegmentID", "Segment"})
+				in
+				  #"Zmieniono kolejność kolumn"
+
+	annotation PBI_ResultType = Table
+

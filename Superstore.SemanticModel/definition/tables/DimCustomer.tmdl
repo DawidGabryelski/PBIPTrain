@@ -1,0 +1,39 @@
+table DimCustomer
+	lineageTag: cccf9169-2a14-4fdb-aa63-313e0e1f36fe
+
+	column CustomerID
+		dataType: int64
+		formatString: 0
+		lineageTag: e1ac6c50-067b-4b7f-97b3-81894eabac8d
+		summarizeBy: none
+		sourceColumn: CustomerID
+
+		annotation SummarizationSetBy = Automatic
+
+	column CustomerName
+		dataType: string
+		lineageTag: c68ed8c6-30d5-4188-b468-df75dbdb4f86
+		summarizeBy: none
+		sourceColumn: CustomerName
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimCustomer = m
+		mode: import
+		queryGroup: Dimensions
+		source =
+				let
+				  Źródło = #"Sample - Superstore",
+				  #"Wybierz kolumny" = Table.SelectColumns(Źródło, {"Customer ID", "Customer Name"}),
+				  #"Zmieniono nazwy kolumn" = Table.RenameColumns(#"Wybierz kolumny", {{"Customer Name", "CustomerName"}}),
+				  #"Posortowano wiersze" = Table.Sort(#"Zmieniono nazwy kolumn", {{"CustomerName", Order.Ascending}}),
+				  #"Usunięto duplikaty" = Table.Distinct(#"Posortowano wiersze", {"Customer ID", "CustomerName"}),
+				  #"Dodano indeks" = Table.AddIndexColumn(#"Usunięto duplikaty", "Indeks", 1, 1, Int64.Type),
+				  #"Zmieniono nazwy kolumn 1" = Table.RenameColumns(#"Dodano indeks", {{"Indeks", "CustomerID"}}),
+				  #"Usunięto kolumny" = Table.RemoveColumns(#"Zmieniono nazwy kolumn 1", {"Customer ID"}),
+				  #"Zmieniono kolejność kolumn" = Table.ReorderColumns(#"Usunięto kolumny", {"CustomerID", "CustomerName"})
+				in
+				  #"Zmieniono kolejność kolumn"
+
+	annotation PBI_ResultType = Table
+

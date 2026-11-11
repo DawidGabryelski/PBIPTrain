@@ -1,0 +1,74 @@
+model Model
+	culture: pl-PL
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: pl-PL
+	valueFilterBehavior: independent
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+queryGroup Raw
+
+	annotation PBI_QueryGroupOrder = 0
+
+queryGroup Dimensions
+
+	annotation PBI_QueryGroupOrder = 1
+
+queryGroup Facts
+
+	annotation PBI_QueryGroupOrder = 2
+
+extendedProperty SQLBI_BRAVO_ManageDatesConfiguration =
+		{
+		  "templateUri": "file:///C:/Users/dawid/AppData/Local/Bravo/.temp/ManageDates/Templates/Config-01.template.json",
+		  "isCurrent": false,
+		  "isCustom": false,
+		  "name": "Config-01",
+		  "description": "Standard gregorian calendar",
+		  "isoFormat": "en-GB",
+		  "isoTranslation": "en-GB",
+		  "autoScan": 127,
+		  "onlyTablesColumns": [],
+		  "exceptTablesColumns": [],
+		  "isoCountry": "US",
+		  "autoNaming": 1,
+		  "targetMeasures": [],
+		  "defaults": {
+		    "firstDayOfWeek": 1
+		  },
+		  "dateAvailable": true,
+		  "dateEnabled": true,
+		  "dateTableName": "Date",
+		  "dateTableValidation": 1,
+		  "dateReferenceTableName": "TimeInteligence",
+		  "dateReferenceTableValidation": 1,
+		  "holidaysAvailable": true,
+		  "holidaysEnabled": false,
+		  "holidaysTableName": "Holidays",
+		  "holidaysTableValidation": 0,
+		  "holidaysDefinitionTableName": "HolidaysDefinition",
+		  "holidaysDefinitionTableValidation": 0,
+		  "timeIntelligenceAvailable": true,
+		  "timeIntelligenceEnabled": true
+		}
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_QueryOrder = ["Sample - Superstore","DimShipMode","DimCustomer","DimSegment","DimLocation","DimRegion","DimProduct","FactSales","DimDate"]
+
+annotation PBI_ProTooling = ["DevMode","TMDLView_Desktop"]
+
+ref table DimShipMode
+ref table DimCustomer
+ref table DimSegment
+ref table DimLocation
+ref table DimRegion
+ref table DimProduct
+ref table FactSales
+ref table DimDate
+ref table TimeInteligence
+ref table Date
+
+ref cultureInfo pl-PL
+

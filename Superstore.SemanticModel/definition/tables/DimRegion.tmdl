@@ -1,0 +1,36 @@
+table DimRegion
+	lineageTag: 072ddbc4-ea85-4169-8a9a-e4844f964964
+
+	column RegionID
+		dataType: int64
+		formatString: 0
+		lineageTag: 2120c3c2-bd49-4f4c-903e-0d46d03756f5
+		summarizeBy: none
+		sourceColumn: RegionID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Region
+		dataType: string
+		lineageTag: 2d96bde5-3c13-4334-ba69-f780826fde03
+		summarizeBy: none
+		sourceColumn: Region
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimRegion = m
+		mode: import
+		queryGroup: Dimensions
+		source =
+				let
+				  Źródło = #"Sample - Superstore",
+				  #"Wybierz kolumny" = Table.SelectColumns(Źródło, {"Region"}),
+				  #"Usunięto duplikaty" = Table.Distinct(#"Wybierz kolumny", {"Region"}),
+				  #"Dodano indeks" = Table.AddIndexColumn(#"Usunięto duplikaty", "Indeks", 1, 1, Int64.Type),
+				  #"Zmieniono kolejność kolumn" = Table.ReorderColumns(#"Dodano indeks", {"Indeks", "Region"}),
+				  #"Zmieniono nazwy kolumn" = Table.RenameColumns(#"Zmieniono kolejność kolumn", {{"Indeks", "RegionID"}})
+				in
+				  #"Zmieniono nazwy kolumn"
+
+	annotation PBI_ResultType = Table
+
